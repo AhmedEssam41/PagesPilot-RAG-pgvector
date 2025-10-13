@@ -15,6 +15,7 @@ import {
 } from "./middlewares/security.middleware";
 import { generalLimiter } from "./middlewares/rateLimit.middleware";
 import authRoutes from "./routes/auth.routes";
+import os from "os";
 
 const app = express();
 
@@ -47,6 +48,9 @@ app.get("/health", (req, res) => {
     status: "OK",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
+    memoryUsage: process.memoryUsage(),
+    cpuLoad: os.loadavg(),
+    os: os.platform(),
   });
 });
 

@@ -29,7 +29,8 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
-    "multer-storage-cloudinary": "^4.0.0"
+    "multer-storage-cloudinary": "^4.0.0",
+    "os": "^0.1.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
