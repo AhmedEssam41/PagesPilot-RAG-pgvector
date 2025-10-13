@@ -1,16 +1,53 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import adminRoutes from "./routes/admin.routes";
+import managerRoutes from "./routes/manager.routes";
 import leadRoutes from "./routes/lead.routes";
-// import userRoutes from "./routes/user.routes";
+import facebookRoutes from "./routes/facebook.routes";
+import userRoutes from "./routes/user.routes";
+import contentRoutes from "./routes/content.routes";
+import {
+  securityHeaders,
+  corsOptions,
+  sanitizeRequest,
+  requestSizeLimit,
+} from "./middlewares/security.middleware";
+import { generalLimiter } from "./middlewares/rateLimit.middleware";
+import authRoutes from "./routes/auth.routes";
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+// Security middleware
+app.use(securityHeaders);
+app.use(cors(corsOptions));
+app.use(cookieParser());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// Request processing middleware
+app.use(sanitizeRequest);
+app.use(requestSizeLimit);
+
+// General rate limiting
+app.use(generalLimiter);
 
 // Routes
-// app.use("/api/users", userRoutes);
-app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/content", contentRoutes);
+app.use("/api/v1/facebook", facebookRoutes);
 app.use("/api/v1/leads", leadRoutes);
+app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/manager", managerRoutes);
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
+
 export default app;

@@ -5,7 +5,7 @@ import prisma from "../config/prisma";
 const addLead = async (req: Request, res: Response) => {
   try {
     const { name, email, url, message } = req.body;
-    const lead = await createLead(name, email, url, message);
+    const lead = await createLead({ name, email, url, message });
     res.status(201).json(lead);
   } catch (err: any) {
     res.status(400).json({ error: err.message });

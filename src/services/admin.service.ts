@@ -1,31 +1,82 @@
 import bcrypt from "bcrypt";
 import prisma from "../config/prisma";
-import jwt from "jsonwebtoken";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../middlewares/auth.middleware";
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
-
-const createAdmin = async (email: string, password: string) => {
+const createAdmin = async (name: string, email: string, password: string) => {
   const hashed = await bcrypt.hash(password, 10);
 
-  //check if admin already exists
-  const admin = await prisma.admin.findUnique({ where: { email } });
-  if (admin) throw new Error("Admin already exists");
-  return prisma.admin.create({
-    data: { email, password: hashed },
+  // Check if admin already exists
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, name: true, email: true, role: true },
+  });
+
+  if (existingAdmin) {
+    throw new Error("Admin already exists");
+  }
+
+  return prisma.user.create({
+    data: {
+      name,
+      email,
+      password: hashed,
+      role: "admin",
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      createdAt: true,
+    },
   });
 };
 
-const login = async (email: string, password: string) => {
-  const admin = await prisma.admin.findUnique({ where: { email } });
-  if (!admin) throw new Error("Admin not found");
-  const valid = await bcrypt.compare(password, admin.password);
-  if (!valid) throw new Error("Invalid credentials");
+// const login = async (email: string, password: string) => {
+//   const admin = await prisma.user.findUnique({
+//     where: { email },
+//     select: { id: true, name: true, email: true, password: true, role: true },
+//   });
 
-  const token = jwt.sign({ id: admin.id, email: admin.email }, JWT_SECRET, {
-    expiresIn: "7d",
-  });
+//   if (!admin) {
+//     throw new Error("Admin not found");
+//   }
 
-  return { ...admin, token };
-};
+//   if (admin.role !== "admin") {
+//     throw new Error("Access denied - admin role required");
+//   }
 
-export { createAdmin, login };
+//   const valid = await bcrypt.compare(password, admin.password);
+//   if (!valid) {
+//     throw new Error("Invalid credentials");
+//   }
+
+//   // Generate tokens
+//   const accessToken = generateAccessToken({
+//     id: admin.id,
+//     name: admin.name,
+//     email: admin.email,
+//     role: admin.role,
+//   });
+
+//   const refreshToken = generateRefreshToken({
+//     id: admin.id,
+//     name: admin.name,
+//     email: admin.email,
+//     role: admin.role,
+//   });
+
+//   return {
+//     id: admin.id,
+//     name: admin.name,
+//     email: admin.email,
+//     role: admin.role,
+//     accessToken,
+//     refreshToken,
+//   };
+// };
+
+export { createAdmin };

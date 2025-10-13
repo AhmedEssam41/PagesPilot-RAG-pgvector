@@ -1,13 +1,9 @@
-import prisma from "../config/prisma";
+// import { Lead } from "@prisma/client";
+import prisma, { Prisma } from "../config/prisma";
 
-const createLead = async (
-  name: string,
-  email: string,
-  url: string,
-  message: string
-) => {
+const createLead = async (lead: Prisma.LeadCreateInput) => {
   return prisma.lead.create({
-    data: { name, email, url, message },
+    data: lead,
   });
 };
 

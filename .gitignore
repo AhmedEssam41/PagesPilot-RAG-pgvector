@@ -3,3 +3,7 @@ node_modules
 .env
 dist
 /src/generated/prisma
+# Google Cloud service account key
+google-cloud-key.json
+*.pem
+.gcp/

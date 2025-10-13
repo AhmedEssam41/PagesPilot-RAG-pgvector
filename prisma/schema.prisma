@@ -16,9 +16,54 @@ datasource db {
 
 model Admin {
   id        Int      @id @default(autoincrement())
+  name      String
   email     String   @unique
-  password  String //hash password
+  password  String
+  role      String   @default("admin") // "admin" or "user"
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
+  role      String    @default("user") // "super_admin", "admin", "manager", "user"
+  isActive  Boolean   @default(true) // Soft delete flag
+  deletedAt DateTime? // When user was deactivated
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Management relationships
+  managedUsers  UserManagement[] @relation("ManagerRelations")
+  managedBy     UserManagement[] @relation("UserRelations")
+  assignedUsers UserManagement[] @relation("AssignerRelations")
+
+  // Existing relations
+  facebookAccounts FacebookAccount[]
+  analytics        UserAnalytics[]
+}
+
+model UserManagement {
+  id         Int      @id @default(autoincrement())
+  managerId  Int // The manager/admin
+  userId     Int // The user being managed
+  assignedAt DateTime @default(now())
+  assignedBy Int // Who assigned this relationship
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  manager  User @relation("ManagerRelations", fields: [managerId], references: [id], onDelete: Cascade)
+  user     User @relation("UserRelations", fields: [userId], references: [id], onDelete: Cascade)
+  assigner User @relation("AssignerRelations", fields: [assignedBy], references: [id], onDelete: Cascade)
+
+  @@unique([managerId, userId])
+  @@index([managerId])
+  @@index([userId])
+  @@index([assignedBy])
 }
 
 model Lead {
@@ -28,4 +73,84 @@ model Lead {
   url       String?
   message   String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FacebookAccount {
+  id             Int       @id @default(autoincrement())
+  userId         Int
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  facebookUserId String    @unique
+  accessToken    String
+  tokenType      String    @default("bearer")
+  expiresAt      DateTime?
+  refreshToken   String?
+  scope          String?
+  isActive       Boolean   @default(true)
+  lastUsedAt     DateTime?
+  deviceInfo     String? // Store device/browser info for device management
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  pages      FacebookPage[]
+  activities FacebookActivity[]
+
+  @@index([userId])
+  @@index([facebookUserId])
+}
+
+model FacebookPage {
+  id                Int             @id @default(autoincrement())
+  facebookAccountId Int
+  facebookAccount   FacebookAccount @relation(fields: [facebookAccountId], references: [id], onDelete: Cascade)
+  pageId            String
+  pageName          String
+  pageAccessToken   String
+  category          String?
+  isActive          Boolean         @default(true)
+  lastUsedAt        DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  // Relations
+  activities FacebookActivity[]
+
+  @@unique([facebookAccountId, pageId])
+  @@index([pageId])
+}
+
+model FacebookActivity {
+  id                Int             @id @default(autoincrement())
+  facebookAccountId Int
+  facebookAccount   FacebookAccount @relation(fields: [facebookAccountId], references: [id], onDelete: Cascade)
+  facebookPageId    Int?
+  facebookPage      FacebookPage?   @relation(fields: [facebookPageId], references: [id], onDelete: SetNull)
+  activityType      String // 'post_created', 'post_scheduled', 'comment_replied', 'page_connected', etc.
+  activityData      Json? // Store additional activity-specific data
+  success           Boolean         @default(true)
+  errorMessage      String?
+  createdAt         DateTime        @default(now())
+
+  @@index([facebookAccountId])
+  @@index([activityType])
+  @@index([createdAt])
+}
+
+model UserAnalytics {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date            DateTime @default(now())
+  postsCreated    Int      @default(0)
+  postsScheduled  Int      @default(0)
+  commentsReplied Int      @default(0)
+  pagesConnected  Int      @default(0)
+  totalEngagement Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
 }
