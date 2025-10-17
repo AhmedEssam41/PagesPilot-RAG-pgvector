@@ -66,6 +66,7 @@ facebookRoutes.get(
         `https://graph.facebook.com/me?access_token=${tokenData.access_token}&fields=id,name,email`
       );
       const userInfo = await userInfoResponse.json();
+      console.log("User info:", userInfo);
 
       // Extract device info from request
       const deviceInfo = {
@@ -104,6 +105,7 @@ facebookRoutes.get(
   async (req: Request, res: Response) => {
     try {
       const { access_token, facebook_account_id } = req.query;
+
       const userId = (req as any).user.id;
 
       if (!access_token) {
