@@ -34,16 +34,16 @@ app.use(requestSizeLimit);
 app.use(generalLimiter);
 
 // Routes
-app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/users", userRoutes);
-app.use("/api/v1/content", contentRoutes);
-app.use("/api/v1/facebook", facebookRoutes);
-app.use("/api/v1/leads", leadRoutes);
-app.use("/api/v1/admin", adminRoutes);
-app.use("/api/v1/manager", managerRoutes);
+app.use("/v1/auth", authRoutes);
+app.use("/v1/users", userRoutes);
+app.use("/v1/content", contentRoutes);
+app.use("/v1/facebook", facebookRoutes);
+app.use("/v1/leads", leadRoutes);
+app.use("/v1/admin", adminRoutes);
+app.use("/v1/manager", managerRoutes);
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+app.get("/v1/health", (req, res) => {
   res.status(200).json({
     status: "OK",
     timestamp: new Date().toISOString(),
