@@ -15,6 +15,7 @@ import {
 } from "./middlewares/security.middleware";
 import { generalLimiter } from "./middlewares/rateLimit.middleware";
 import authRoutes from "./routes/auth.routes";
+import dashboardRoutes from "./routes/dashboard.routes";
 import os from "os";
 
 const app = express();
@@ -41,6 +42,7 @@ app.use("/v1/facebook", facebookRoutes);
 app.use("/v1/leads", leadRoutes);
 app.use("/v1/admin", adminRoutes);
 app.use("/v1/manager", managerRoutes);
+app.use("/v1/dashboard", dashboardRoutes);
 
 // Health check endpoint
 app.get("/v1/health", (req, res) => {
