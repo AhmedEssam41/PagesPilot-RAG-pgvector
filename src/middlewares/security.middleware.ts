@@ -28,7 +28,7 @@ export const securityHeaders = helmet({
 export const corsOptions = {
   origin: (
     origin: string | undefined,
-    callback: (err: Error | null, allow?: boolean) => void
+    callback: (err: Error | null, allow?: boolean) => void,
   ) => {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
@@ -41,6 +41,8 @@ export const corsOptions = {
       "https://www.pagespilot.com",
       "https://pagespilot.vercel.app",
       "https://pagespilot.netlify.app",
+      "https://pagespilot.com",
+      "https://app.pagespilot.com",
     ];
 
     if (process.env.NODE_ENV === "development") {
@@ -67,7 +69,7 @@ export const corsOptions = {
 export const sanitizeRequest = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   // Remove any potential XSS attempts from query parameters
   const sanitizeString = (str: string): string => {
@@ -115,7 +117,7 @@ export const sanitizeRequest = (
 export const requestSizeLimit = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const contentLength = parseInt(req.headers["content-length"] || "0");
   const maxSize = 10 * 1024 * 1024; // 10MB
@@ -135,7 +137,7 @@ export const requestSizeLimit = (
 export const adminIPWhitelist = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const adminIPs = process.env.ADMIN_IP_WHITELIST?.split(",") || [];
 
