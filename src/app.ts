@@ -7,6 +7,7 @@ import leadRoutes from "./routes/lead.routes";
 import facebookRoutes from "./routes/facebook.routes";
 import userRoutes from "./routes/user.routes";
 import contentRoutes from "./routes/content.routes";
+import ragRoutes from "./routes/ragRoutes";
 import {
   securityHeaders,
   corsOptions,
@@ -43,6 +44,7 @@ app.use("/v1/leads", leadRoutes);
 app.use("/v1/admin", adminRoutes);
 app.use("/v1/manager", managerRoutes);
 app.use("/v1/dashboard", dashboardRoutes);
+app.use("/v1/rag", ragRoutes);
 
 // Health check endpoint
 app.get("/v1/health", (req, res) => {
